@@ -51,12 +51,11 @@ class HomeScreen extends GetView<HomeController> {
                   )
           ],
         ),
-        body: Center(
-          child: PageView(
-            controller: controller.pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: controller.pageContent,
-          ),
+        body: PageView(
+          controller: controller.pageController,
+          //scrollDirection: Axis.vertical,
+          physics: const NeverScrollableScrollPhysics(),
+          children: controller.pageContent,
         ),
         bottomNavigationBar: BottomNavigationBar(
           elevation: 0.0,

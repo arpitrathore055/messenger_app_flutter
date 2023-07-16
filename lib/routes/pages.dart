@@ -44,10 +44,8 @@ class AppPages {
     ),
     GetPage(
       name: chatRoom,
-      page: () => ChatRoomScreen(),
+      page: () => const ChatRoomScreen(),
       binding: ChatRoomBindings(),
-
-      //transition: Transition.circularReveal,
     ),
   ];
 }

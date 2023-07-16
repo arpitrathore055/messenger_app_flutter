@@ -7,12 +7,8 @@ class ContactScreen extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: controller.loadContactRoomsView(),
-        ),
-      ],
+    return Expanded(
+      child: controller.loadContactUserList(),
     );
   }
 }

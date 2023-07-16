@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,8 @@ import 'package:messengerapp/utils/constants/colors.dart';
 import 'package:messengerapp/utils/constants/constants.dart';
 import 'package:messengerapp/utils/providers.dart';
 import 'package:messengerapp/utils/widgets/chatcard.dart';
+import 'package:messengerapp/utils/widgets/customcontactlist.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeController extends GetxController {
   final HomeState state = HomeState();
@@ -22,8 +25,10 @@ class HomeController extends GetxController {
   late PageController _pageController;
   final isSearching = false.obs;
   final searchKey = "".obs;
+  final isContactsLoading = true.obs;
   final isDarkTheme = false.obs;
   final isProfileLoading = true.obs;
+  List<Contact> _contactUserList = [];
   late List<String> _tabTitleList;
   late List<Widget> _pageContent;
   late List<BottomNavigationBarItem> _bottomNavItemList;
@@ -73,6 +78,7 @@ class HomeController extends GetxController {
     ];
     //state.isChatRoomLoading.value = false;
     await StorageServices.to.loadUserInfo(auth.currentUser!.uid);
+    getContactAccessPermission();
     super.onInit();
   }
 
@@ -81,6 +87,20 @@ class HomeController extends GetxController {
   List<BottomNavigationBarItem> get bottomNavItemList => _bottomNavItemList;
   List<Widget> get pageContent => _pageContent;
   List<String> get tabTitleList => _tabTitleList;
+  List<Contact> get contactUserList => _contactUserList;
+
+  getContactAccessPermission() async {
+    if (await Permission.contacts.isGranted) {
+      fetchContactUserList();
+      isContactsLoading.value = false;
+    } else {
+      await Permission.contacts.request();
+    }
+  }
+
+  fetchContactUserList() async {
+    _contactUserList = await ContactsService.getContacts();
+  }
 
   void handleSignOut() {
     StorageServices.to.sharedPrefs.clear();
@@ -265,5 +285,23 @@ class HomeController extends GetxController {
         return const Center(child: CircularProgressIndicator());
       },
     );
+  }
+
+  loadContactUserList() {
+    return (isContactsLoading.value)
+        ? Center(
+            child: CircularProgressIndicator(
+              color: AppColors.buttonColor,
+            ),
+          )
+        : ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            itemCount: _contactUserList.length,
+            itemBuilder: (context, index) {
+              var contactUser = _contactUserList[index];
+              return CustomContactList(contactUserDetails: contactUser);
+            },
+          );
   }
 }
